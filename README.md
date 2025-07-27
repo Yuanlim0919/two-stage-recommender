@@ -142,14 +142,6 @@ python recommendation_driver.py \
 ```
 This will create subdirectories in the output folder (`rec_SGMSE`, `rec_CDiffuSE`, etc.), populate them based on the recommender's predictions, and then run the corresponding speech enhancement models.
 
-### Post-Recommendation Evaluation
-
-Of course. This script is the final application of your entire project. It brings together the trained models, the enhancement baselines, and the objective evaluation metrics into a single, powerful tool. A good README section explaining this is essential.
-
-Here is a README section that describes the purpose, functionality, and usage of this inference and evaluation script. You can add this to the end of your main `README.md`.
-
----
-
 ### Recommendation-Driven Enhancement & Evaluation
 
 This project culminates in the `recommendation_driver.py` script, a comprehensive tool to apply the trained recommender system to new noisy audio and evaluate the quality of the resulting adaptively enhanced speech.
