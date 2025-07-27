@@ -142,6 +142,74 @@ python recommendation_driver.py \
 ```
 This will create subdirectories in the output folder (`rec_SGMSE`, `rec_CDiffuSE`, etc.), populate them based on the recommender's predictions, and then run the corresponding speech enhancement models.
 
+### Post-Recommendation Evaluation
+
+Of course. This script is the final application of your entire project. It brings together the trained models, the enhancement baselines, and the objective evaluation metrics into a single, powerful tool. A good README section explaining this is essential.
+
+Here is a README section that describes the purpose, functionality, and usage of this inference and evaluation script. You can add this to the end of your main `README.md`.
+
+---
+
+### Recommendation-Driven Enhancement & Evaluation
+
+This project culminates in the `recommendation_driver.py` script, a comprehensive tool to apply the trained recommender system to new noisy audio and evaluate the quality of the resulting adaptively enhanced speech.
+
+#### Overview of the Pipeline
+
+The script performs the following steps:
+
+1.  **Load Recommender:** It initializes the best-performing two-stage pipeline, loading the pre-trained **Gatekeeper** (AST-Hybrid model) and **Expert** (AST-Hybrid model).
+2.  **Make Recommendations:** It iterates through a directory of unseen noisy audio files. For each file, it performs the two-stage prediction to determine the optimal speech enhancement model (`SGMSE`, `CDiffuSE`, `StoRM`, or `All Failed`).
+3.  **Sort Audio Files:** Based on the recommendations, it creates subdirectories (e.g., `rec_SGMSE`, `rec_CDiffuSE`) and copies the noisy audio files into the appropriate folder. This prepares the data for targeted enhancement.
+4.  **Run Targeted Enhancement:** The script then invokes the `enhancement_driver.py` (your separate implementation) for each subdirectory, running only the recommended SE model on the files sorted into its folder. For files classified as `All Failed`, a default model (`SGMSE`) is used as a fallback.
+5.  **Objective Evaluation:** Finally, the script can perform a detailed objective evaluation of the enhanced audio, comparing the outputs against the original noisy (and optionally, clean) speech using standard speech quality metrics:
+    *   **PESQ** (Perceptual Evaluation of Speech Quality)
+    *   **STOI** (Short-Time Objective Intelligibility)
+    *   **DNSMOS P.835** (A deep learning-based MOS predictor for overall quality, signal quality, and background quality)
+
+#### Usage
+
+The script supports two primary modes: a full **recommend-and-enhance** workflow and an **evaluation-only** mode.
+
+1. Full Pipeline: Recommending, Enhancing, and Evaluating
+
+This is the standard workflow for processing a new set of noisy files. You must have the baseline SE models (`SGMSE`, etc.) and your trained recommender models available.
+
+**Command:**
+```bash
+python recommendation_driver.py \
+    --noisy_speech_dir /path/to/your/unseen_noisy_audio \
+    --enhanced_dir /path/to/your/output_directory \
+    --gatekeeper_model_path /path/to/best_gatekeeper.pth \
+    --expert_model_path /path/to/best_hybrid_expert.pth \
+    --use_hybrid_features \
+    --cekl_features_base_dir /path/to/precalculated/cekl_features \
+    --clean_speech_dir /path/to/corresponding_clean_audio # Optional, for PESQ/STOI
+```
+
+**Arguments:**
+*   `--noisy_speech_dir`: The input directory containing new `.wav` files.
+*   `--enhanced_dir`: The main output directory where the `rec_*` subfolders and enhanced audio will be created.
+*   `--gatekeeper_model_path`: Path to the trained `.pth` file for your best Gatekeeper model.
+*   `--expert_model_path`: Path to the trained `.pth` file for your best (hybrid) Expert model.
+*   `--use_hybrid_features`: Flag to enable the hybrid feature path for both models.
+*   `--cekl_features_base_dir`: Path to the pre-calculated CE/KL features for the noisy audio.
+*   `--clean_speech_dir`: (Optional) If you have corresponding clean reference audio, provide the path to calculate PESQ and STOI. The filenames must match the noisy audio.
+
+2. Evaluation-Only Mode
+
+This mode is useful if you have already run the enhancement pipeline and simply want to re-calculate or analyze the objective scores. It expects the output directory to already be populated with the `rec_*` folders and their corresponding `enhanced` subfolders.
+
+**Command:**
+```bash
+python recommendation_driver.py \
+    --eval_only \
+    --enhanced_dir /path/to/your/output_directory \
+    --clean_speech_dir /path/to/corresponding_clean_audio # Optional
+```
+
+The script will automatically find all `rec_*` folders within the `--enhanced_dir`, locate the noisy and enhanced files for each, and calculate the objective metrics, providing a final, aggregated performance report for the entire adaptively enhanced dataset.
+
 ## Key Findings
 
 - A single, end-to-end 4-class model is fundamentally limited by class imbalance, plateauing at a Macro F1 score of ~0.55.
