@@ -38,9 +38,25 @@ The training and evaluation data for the recommender was created by mixing clean
     *   [MS-SNSD](https://github.com/microsoft/MS-SNSD.git)
     *   [Voicebank-DEMAND](https://www.kaggle.com/datasets/jiangwq666/voicebank-demand)
 
-### 2. Label Generation
+### Label Generation
 
-Noisy-clean pairs were created and then processed by each of the three SE models (`SGMSE`, `CDiffuSE`, `StoRM`). The quality of each enhanced output was evaluated using DNSMOS. The model that produced the highest DNSMOS (Overall) score was assigned as the "best model" (the ground-truth label) for that noisy sample.
+The ground-truth labels for the recommender system (i.e., which SE model is "best" for a given noisy sample) were generated through a comprehensive, data-driven pipeline. Instead of relying on a single metric, we developed a methodology to categorize the *success* or *failure* of each enhancement process.
+
+The process is as follows:
+
+1.  **Systematic Enhancement:** Every noisy audio sample in our prepared datasets was processed by each of the three baseline enhancement models (`SGMSE`, `CDiffuSE`, `StoRM`).
+
+2.  **Objective Quality Evaluation:** The output of each enhancement was evaluated using the industry-standard **DNSMOS P.835** framework. This provides a multi-dimensional Mean Opinion Score (MOS) predicting human listener ratings on three independent scales:
+    *   **SIG (Speech Quality):** The clarity and lack of distortion in the speech signal itself.
+    *   **BAK (Background Noise Quality):** The degree of suppression and lack of annoying artifacts in the residual background.
+    *   **OVR (Overall Quality):** The overall impression of the audio quality.
+
+3.  **Determining the "Best" Model:** For each noisy sample, the enhancement model that achieved the highest **DNSMOS OVR (Overall) score** was designated as the ground-truth "best model" for that sample.
+
+4.  **Handling Ambiguity ("All Failed"):** In cases where no enhancement model was able to produce a satisfactory result (e.g., all models scored below a certain quality threshold on DNSMOS OVR), the sample was labeled as `All Failed`. This created a crucial fourth category for the recommender, allowing it to learn to identify situations where no available model is likely to succeed.
+
+This entire process is automated in the `enhancement_driver.py` script (or a similar name based on your file). The script includes a `SpeechEnhancementPipeline` to run the baseline models and a `QualityEvaluation` class to score the outputs and generate the final label CSV files.
+
 
 ### 3. Feature Pre-calculation (Optional but Recommended)
 
