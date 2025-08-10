@@ -32,11 +32,17 @@ The training and evaluation data for the recommender was created by mixing clean
 *   **Clean Speech:**
     *   [CREMA-D](https://www.kaggle.com/datasets/ejlok1/cremad)
     *   [LJSpeech](https://www.kaggle.com/datasets/mathurinache/the-lj-speech-dataset)
-    *   [Voicebank-DEMAND](https://www.kaggle.com/datasets/jiangwq666/voicebank-demand)
-    *   [DNS Challenge 2020](https://github.com/microsoft/DNS-Challenge)
-*   **Noise:**
+*   **Noise Signal:**
     *   [MS-SNSD](https://github.com/microsoft/MS-SNSD.git)
-    *   [Voicebank-DEMAND](https://www.kaggle.com/datasets/jiangwq666/voicebank-demand)
+*   **Real world recordings**
+    *   [DNS Challenge 2020](https://github.com/microsoft/DNS-Challenge)
+*   **Benkmark dataset**
+    * [Voicebank-DEMAND](https://www.kaggle.com/datasets/jiangwq666/voicebank-demand)
+
+For clean speech and noise signal, please synthesize noisy speech with following command:
+```bash
+python preprocessing/speech_noise_mixing.py
+```
 
 ### Label Generation
 
